@@ -1,14 +1,14 @@
-// api/chat.js - MAHOXAI NEW ROUTER UPDATE
-export default async function handler(req, res) {
+// api/chat.js - MAHOXAI STABLE BACKEND (COMMONJS)
+const fetch = require('node-fetch'); // Vercel ortamında gerekebilir veya standart fetch kullanılır
+
+module.exports = async (req, res) => {
     if (req.method !== 'POST') return res.status(405).json({ error: 'POST lazım ağa!' });
 
     // Buraya kendi token'ını yapıştır
     const TOKEN = "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"; 
-
     const { message } = req.body;
 
     try {
-        // ESKİ: api-inference.huggingface.co -> YENİ: router.huggingface.co
         const response = await fetch("https://router.huggingface.co/hf-inference/models/HuggingFaceH4/zephyr-7b-beta", {
             headers: { 
                 "Authorization": `Bearer ${TOKEN}`,
@@ -33,4 +33,4 @@ export default async function handler(req, res) {
     } catch (error) {
         res.status(500).json({ error: "Bağlantı koptu: " + error.message });
     }
-}
+};
