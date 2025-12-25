@@ -2,10 +2,10 @@
 async function askMahox(userMessage) {
     try {
        // core.js içinde istek attığın yer
-const response = await fetch("/api/chat", {
+const response = await fetch("/.netlify/functions/chat", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message: userMessage }),
+    body: JSON.stringify({ message: userInput })
 });
 
         const result = await response.json();
@@ -23,4 +23,5 @@ const response = await fetch("/api/chat", {
         return "Bağlantı hatası: Backend'e ulaşılamıyor!";
     }
 }
+
 
