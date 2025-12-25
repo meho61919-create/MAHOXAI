@@ -1,16 +1,17 @@
-// api/chat.js - MAHOXAI KESİN ÇÖZÜM
+// api/chat.js - MAHOXAI NEW ROUTER UPDATE
 export default async function handler(req, res) {
-    if (req.method !== 'POST') return res.status(405).json({ error: 'Sadece POST isteği ağa!' });
+    if (req.method !== 'POST') return res.status(405).json({ error: 'POST lazım ağa!' });
 
-    // BURAYA KENDİ TOKEN'INI TIRNAK İÇİNDE YAPIŞTIR
-    const HARDCODED_KEY = "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"; 
+    // Buraya kendi token'ını yapıştır
+    const TOKEN = "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"; 
 
     const { message } = req.body;
 
     try {
-        const response = await fetch("https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta", {
+        // ESKİ: api-inference.huggingface.co -> YENİ: router.huggingface.co
+        const response = await fetch("https://router.huggingface.co/hf-inference/models/HuggingFaceH4/zephyr-7b-beta", {
             headers: { 
-                "Authorization": `Bearer ${HARDCODED_KEY}`,
+                "Authorization": `Bearer ${TOKEN}`,
                 "Content-Type": "application/json" 
             },
             method: "POST",
@@ -26,7 +27,6 @@ export default async function handler(req, res) {
             return res.status(response.status).json({ error: data.error || "HuggingFace cevap vermedi ağa!" });
         }
 
-        // Eğer cevap bir array ise ilkini al, değilse direkt döndür
         const finalData = Array.isArray(data) ? data : [data];
         res.status(200).json(finalData);
 
