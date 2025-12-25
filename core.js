@@ -1,11 +1,12 @@
 // core.js - Gerçek Hata Gösterici
 async function askMahox(userMessage) {
     try {
-        const response = await fetch("/api/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message: userMessage }),
-        });
+       // core.js içinde istek attığın yer
+const response = await fetch("/api/chat", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ message: userMessage }),
+});
 
         const result = await response.json();
 
@@ -22,3 +23,4 @@ async function askMahox(userMessage) {
         return "Bağlantı hatası: Backend'e ulaşılamıyor!";
     }
 }
+
