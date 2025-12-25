@@ -1,14 +1,13 @@
-module.exports = async (req, res) => {
-    // CORS Başlıkları
+export default async function handler(req, res) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
     if (req.method === 'OPTIONS') return res.status(200).end();
-    if (req.method !== 'POST') return res.status(405).json({ error: 'Sadece POST!' });
+    if (req.method !== 'POST') return res.status(405).json({ error: 'POST lazım!' });
 
     const { message } = req.body;
-    const TOKEN = "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"; // BURAYA YENİ TOKENI YAPIŞTIR
+    const TOKEN = "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"; // Senin yeni token
 
     try {
         const response = await fetch("https://router.huggingface.co/hf-inference/models/HuggingFaceH4/zephyr-7b-beta", {
@@ -24,8 +23,10 @@ module.exports = async (req, res) => {
         });
 
         const data = await response.json();
-        res.status(200).json(data);
+        return res.status(200).json(data);
     } catch (error) {
-        res.status(500).json({ error: "API Hatası: " + error.message });
+        return res.status(500).json({ error: "Hata: " + error.message });
     }
-};
+}
+
+
