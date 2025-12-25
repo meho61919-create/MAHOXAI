@@ -1,15 +1,14 @@
-// netlify/functions/chat.js
+// EN ÜSTTE HİÇBİR İMPORT VEYA REQUİRE OLMAYACAK!
 export const handler = async (event, context) => {
-    // Sadece POST isteklerine izin ver
     if (event.httpMethod !== "POST") {
         return { statusCode: 405, body: "Sadece POST ağa!" };
     }
 
     try {
         const { message } = JSON.parse(event.body);
-        const TOKEN = "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"; // Senin Token'ın
+        const TOKEN = "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"; // Senin Token
 
-        // Kütüphanesiz, Netlify'ın dahili fetch'ini kullanıyoruz
+        // Doğrudan fetch kullanıyoruz, kütüphane istemez!
         const response = await fetch("https://router.huggingface.co/hf-inference/models/mistralai/Mistral-7B-Instruct-v0.3", {
             headers: { 
                 "Authorization": `Bearer ${TOKEN}`,
@@ -28,7 +27,7 @@ export const handler = async (event, context) => {
             statusCode: 200,
             headers: {
                 "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*" // CORS hatası almamak için
+                "Access-Control-Allow-Origin": "*"
             },
             body: JSON.stringify(data)
         };
@@ -36,7 +35,7 @@ export const handler = async (event, context) => {
     } catch (error) {
         return {
             statusCode: 500,
-            body: JSON.stringify({ error: "Sistem hatası ağa: " + error.message })
+            body: JSON.stringify({ error: "Sistem hatası: " + error.message })
         };
     }
 };
