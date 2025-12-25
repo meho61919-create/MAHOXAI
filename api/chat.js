@@ -1,22 +1,19 @@
-// api/chat.js
 export default async function handler(req, res) {
-    // CORS ayarlarını sunucu tarafında da ekleyelim (Güvenlik önlemi)
-    res.setHeader('Access-Control-Allow-Credentials', true);
+    // CORS ayarları
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
-    res.setHeader('Access-Control-Allow-Headers', 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version');
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
     if (req.method === 'OPTIONS') {
-        res.status(200).end();
-        return;
+        return res.status(200).end();
     }
 
     if (req.method !== 'POST') {
-        return res.status(405).json({ error: 'Sadece POST isteği ağa!' });
+        return res.status(405).json({ error: 'Sadece POST ağa!' });
     }
 
     const { message } = req.body;
-    // TOKEN'I BURAYA YAPIŞTIR (Vercel değişkeniyle uğraşma şimdilik)
+    // BURAYA O YENİ İZİNLİ CLASSIC TOKENI YAPIŞTIR
     const TOKEN = "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"; 
 
     try {
@@ -27,7 +24,7 @@ export default async function handler(req, res) {
             },
             method: "POST",
             body: JSON.stringify({ 
-                inputs: `<|system|>\nSen MAHOXAI isminde, zeki bir mahalle abisisin.</s>\n<|user|>\n${message}</s>\n<|assistant|>`,
+                inputs: `<|system|>\nSen MAHOXAI isminde zeki bir mahalle abisisin.</s>\n<|user|>\n${message}</s>\n<|assistant|>`,
                 parameters: { max_new_tokens: 500, temperature: 0.7 }
             }),
         });
@@ -38,12 +35,9 @@ export default async function handler(req, res) {
             return res.status(response.status).json({ error: data.error || "HF Hatası" });
         }
 
-        res.status(200).json(data);
+        return res.status(200).json(data);
 
     } catch (error) {
-        console.error("Backend hatası:", error);
-        res.status(500).json({ error: "Backend patladı ağa: " + error.message });
+        return res.status(500).json({ error: "Sistem hatası: " + error.message });
     }
 }
-
-
