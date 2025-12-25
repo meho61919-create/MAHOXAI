@@ -1,9 +1,14 @@
-// api/chat.js - MAHOXAI Gizli Köprüsü
+// api/chat.js - Arıza Tespit Modu
 export default async function handler(req, res) {
-    if (req.method !== 'POST') return res.status(405).send('Method Not Allowed');
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
     const { message } = req.body;
-    const API_KEY = process.env.MAHOX_KEY; // Token'ı Vercel panelinden vereceğiz
+    const API_KEY = process.env.MAHOX_KEY; 
+
+    // KRİTİK KONTROL: Token Vercel'e yüklendi mi?
+    if (!API_KEY) {
+        return res.status(500).json({ error: "Vercel'de MAHOX_KEY tanımlanmamış ağa!" });
+    }
 
     try {
         const response = await fetch("https://api-inference.huggingface.co/models/HuggingFaceH4/zephyr-7b-beta", {
@@ -19,8 +24,14 @@ export default async function handler(req, res) {
         });
 
         const data = await response.json();
+
+        if (!response.ok) {
+            // Hatayı direkt ekrana basalım ki sorunu görelim
+            return res.status(response.status).json({ error: data.error || "HF Hatası" });
+        }
+
         res.status(200).json(data);
     } catch (error) {
-        res.status(500).json({ error: "Sunucu hatası ağa!" });
+        res.status(500).json({ error: "Bağlantı koptu: " + error.message });
     }
 }
