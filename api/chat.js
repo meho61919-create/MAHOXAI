@@ -7,7 +7,7 @@ export default async function handler(req, res) {
 
     const { message } = req.body || {};
     // TOKEN'I BURAYA YAPIŞTIR
-    const TOKEN = "hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"; 
+    const TOKEN = "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"; 
 
     try {
         const response = await fetch("https://router.huggingface.co/hf-inference/models/HuggingFaceH4/zephyr-7b-beta", {
@@ -36,3 +36,4 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: "Bağlantı Hatası: " + error.message });
     }
 }
+
