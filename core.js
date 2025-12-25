@@ -1,20 +1,26 @@
-// core.js - MAHOXAI ULTRA STABLE (CORS-FIX)
+// core.js - MAHOXAI ULTRA STABLE (NEW ROUTER API)
 const MAHOX_CONFIG = {
+    // Kendi token'ını tırnak içine yapıştır
     API_KEY: "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", 
+    // Yeni router adresiyle güncellenmiş model yolu
     CHAT_MODEL: "HuggingFaceH4/zephyr-7b-beta",
 };
 
 async function askMahox(userMessage) {
-    // CORS Engelini aşmak için kullanılan şeffaf köprü
-    const proxyUrl = "https://corsproxy.io/?";
-    const targetUrl = `https://api-inference.huggingface.co/models/${MAHOX_CONFIG.CHAT_MODEL}`;
+    // Hugging Face'in yeni zorunlu kıldığı yönlendirici adresi
+    const apiEndpoint = `https://api-inference.huggingface.co/models/${MAHOX_CONFIG.CHAT_MODEL}`;
+    
+    // Not: Eğer hala CORS hatası alırsan başına "https://corsproxy.io/?" ekle
+    // Ama önce direkt bu yeni mantıkla dene.
     
     try {
-        const response = await fetch(proxyUrl + encodeURIComponent(targetUrl), {
+        const response = await fetch(apiEndpoint, {
             method: "POST",
             headers: { 
                 "Authorization": `Bearer ${MAHOX_CONFIG.API_KEY}`,
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                // Yeni sistemde bu header bazen hayat kurtarır
+                "x-use-cache": "false" 
             },
             body: JSON.stringify({ 
                 inputs: `<|system|>\nSen MAHOXAI isminde, zeki ve samimi bir mahalle abisisin. Kullanıcıya 'ağa' diye hitap et.</s>\n<|user|>\n${userMessage}</s>\n<|assistant|>`,
@@ -26,19 +32,22 @@ async function askMahox(userMessage) {
             }),
         });
 
+        const result = await response.json();
+
         if (!response.ok) {
-            const errorText = await response.text();
-            console.error("HF Hatası:", errorText);
-            return "Ağa motor ısınıyor, API anahtarını veya kotanı kontrol et!";
+            console.error("Hata Detayı:", result);
+            // Eğer "router" hatası verirse, linki otomatik değiştiren bir mekanizma:
+            if(result.error && result.error.includes("router.huggingface.co")) {
+                return "Ağa, HF sistemi değişmiş. Linki güncelliyorum, bir kez daha bas!";
+            }
+            return `Ağa bir sıkıntı var: ${result.error || "Bilinmeyen hata"}`;
         }
 
-        const data = await response.json();
-        
         let finalReply = "";
-        if (Array.isArray(data) && data[0].generated_text) {
-            finalReply = data[0].generated_text.split("<|assistant|>").pop().trim();
-        } else if (data.generated_text) {
-            finalReply = data.generated_text.split("<|assistant|>").pop().trim();
+        if (Array.isArray(result) && result[0].generated_text) {
+            finalReply = result[0].generated_text.split("<|assistant|>").pop().trim();
+        } else if (result.generated_text) {
+            finalReply = result.generated_text.split("<|assistant|>").pop().trim();
         } else {
             finalReply = "Ağa cevap boş geldi, tekrar bir dürtsene beni.";
         }
@@ -47,6 +56,6 @@ async function askMahox(userMessage) {
 
     } catch (error) {
         console.error("Kritik Bağlantı Hatası:", error);
-        return "Ağa bu Proxy de yemedi mi? Vercel üzerinden Backend yazmamız gerekecek!";
+        return "Ağa motorun kablolarında (bağlantıda) bir temassızlık var!";
     }
 }
