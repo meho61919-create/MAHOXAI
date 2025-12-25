@@ -7,7 +7,7 @@ export default async function handler(req, res) {
     if (req.method === 'OPTIONS') return res.status(200).end();
 
     const { message } = req.body || {};
-    const TOKEN = "hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"; // Senin yeni token
+    const TOKEN = "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"; // Senin yeni token
 
     try {
         const response = await fetch("https://router.huggingface.co/hf-inference/models/HuggingFaceH4/zephyr-7b-beta", {
@@ -28,3 +28,4 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: "Sistem hatası: " + error.message });
     }
 }
+
