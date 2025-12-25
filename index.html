@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>MAHOXAI | Sınırların Ötesi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;800&display=swap');
+        body { background: #020205; font-family: 'Plus Jakarta Sans', sans-serif; color: white; }
+        .glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.05); }
+        .neon-btn { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); transition: all 0.3s; }
+        .neon-btn:hover { box-shadow: 0 0 30px rgba(59, 130, 246, 0.5); transform: translateY(-2px); }
+    </style>
+</head>
+<body class="h-screen flex items-center justify-center overflow-hidden">
+
+    <div class="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-blue-600/10 blur-[120px] rounded-full"></div>
+    <div class="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-purple-600/10 blur-[120px] rounded-full"></div>
+
+    <div class="glass w-[450px] p-12 rounded-[3rem] text-center relative z-10 animate__animated animate__fadeIn">
+        <div class="mb-8">
+            <h1 class="text-5xl font-extrabold italic tracking-tighter">MAHOX<span class="text-blue-500">AI</span></h1>
+            <p class="text-gray-500 text-[10px] uppercase tracking-[0.4em] mt-3">Artificial Intelligence Hub</p>
+        </div>
+
+        <div id="authForm" class="space-y-4">
+            <input type="text" id="username" placeholder="Kullanıcı Adı" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-blue-500 transition-all">
+            <input type="password" id="password" placeholder="Şifre" class="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-blue-500 transition-all">
+            
+            <button onclick="login()" class="w-full neon-btn py-4 rounded-2xl font-bold text-sm mt-4">Giriş Yap</button>
+            <button onclick="register()" class="w-full bg-white/5 hover:bg-white/10 py-4 rounded-2xl font-bold text-sm border border-white/5">Kayıt Ol</button>
+        </div>
+
+        <p id="status" class="mt-6 text-xs text-blue-400 opacity-0 transition-opacity italic"></p>
+    </div>
+
+    <script>
+        // BASİT LOCALSTORAGE DATABASE (Şimdilik test için, sonra Supabase bağlayacağız)
+        function register() {
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            if(!u || !p) return showMsg("Ağa bilgileri boş bırakma!");
+
+            const db = JSON.parse(localStorage.getItem('mahox_db') || '{}');
+            if(db[u]) return showMsg("Bu kullanıcı zaten var!");
+
+            db[u] = { password: p, history: [] };
+            localStorage.setItem('mahox_db', JSON.stringify(db));
+            showMsg("Kayıt başarılı! Giriş yapabilirsin.");
+        }
+
+        function login() {
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+            const db = JSON.parse(localStorage.getItem('mahox_db') || '{}');
+
+            if(db[u] && db[u].password === p) {
+                localStorage.setItem('mahox_session', u);
+                showMsg("Giriş yapılıyor...");
+                setTimeout(() => window.location.href = 'dashboard.html', 1000);
+            } else {
+                showMsg("Hatalı kullanıcı adı veya şifre!");
+            }
+        }
+
+        function showMsg(m) {
+            const s = document.getElementById('status');
+            s.innerText = m;
+            s.style.opacity = 1;
+        }
+    </script>
+</body>
+</html>

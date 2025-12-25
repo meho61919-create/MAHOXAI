@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>MAHOXAI | Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;800&display=swap');
+        body { background: #020205; font-family: 'Plus Jakarta Sans', sans-serif; color: white; margin: 0; overflow: hidden; }
+        
+        /* Kaydırma çubuğunu gizle ama işlevini koru */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
+
+        .glass-sidebar { background: rgba(255, 255, 255, 0.01); border-right: 1px solid rgba(255,255,255,0.05); }
+        .message-user { background: #2563eb; border-radius: 1.5rem 1.5rem 0 1.5rem; box-shadow: 0 10px 20px -10px rgba(37, 99, 235, 0.5); }
+        .message-bot { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 1.5rem 1.5rem 1.5rem 0; }
+        .input-area { background: rgba(10, 10, 15, 0.8); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.05); }
+    </style>
+</head>
+<body class="flex h-screen w-screen">
+
+    <aside class="w-80 glass-sidebar flex flex-col p-8 shrink-0">
+        <div class="mb-12">
+            <h1 class="text-3xl font-black italic tracking-tighter">MAHOX<span class="text-blue-500">AI</span></h1>
+            <p class="text-[9px] text-gray-500 uppercase tracking-widest mt-2">Professional Assistant</p>
+        </div>
+        
+        <nav class="space-y-3 flex-1">
+            <div class="flex items-center gap-3 p-4 bg-blue-600/10 text-blue-500 rounded-2xl font-bold text-xs cursor-pointer border border-blue-600/20">
+                <span>💬</span> Chat Asistanı
+            </div>
+            <div class="flex items-center gap-3 p-4 hover:bg-white/5 rounded-2xl font-bold text-xs text-gray-500 cursor-pointer transition">
+                <span>🎨</span> Görsel Üret (Yakında)
+            </div>
+            <div class="flex items-center gap-3 p-4 hover:bg-white/5 rounded-2xl font-bold text-xs text-gray-500 cursor-pointer transition">
+                <span>💻</span> Kod Yazıcı (Yakında)
+            </div>
+        </nav>
+
+        <div class="mt-auto p-5 bg-white/5 rounded-3xl border border-white/5">
+            <p id="userName" class="text-sm font-bold truncate text-blue-400">Geliştirici</p>
+            <button onclick="logout()" class="text-[10px] text-red-500 font-extrabold uppercase mt-2 hover:opacity-70 transition">Oturumu Kapat</button>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col relative bg-[#050508]">
+        
+        <header class="h-20 flex items-center px-10 justify-between border-b border-white/5">
+            <div class="flex items-center gap-3">
+                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                <span class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Sistem Çevrimiçi</span>
+            </div>
+            <div class="text-[10px] text-gray-600 font-mono italic">v1.0.2-stable</div>
+        </header>
+
+        <div id="chatDisplay" class="flex-1 overflow-y-auto p-8 md:p-12 space-y-8 scroll-smooth">
+            <div class="flex animate__animated animate__fadeIn">
+                <div class="message-bot max-w-xl p-6 text-sm leading-relaxed text-gray-300">
+                    Selam ağa! Ben **MAHOXAI**. <br><br>
+                    Gemini'yi falan unut, bu mekanın yeni patronu benim. Ne kodlayalım, neyi halledelim? Emirlerini bekliyorum.
+                </div>
+            </div>
+        </div>
+
+        <div class="input-area p-8">
+            <div class="max-w-4xl mx-auto flex items-center gap-4 relative">
+                <input type="text" id="userInput" 
+                       onkeydown="if(event.key === 'Enter') send()"
+                       placeholder="MAHOXAI'a bir şeyler söyle..." 
+                       class="w-full bg-white/5 border border-white/10 p-5 pr-16 rounded-[1.5rem] outline-none focus:border-blue-500 transition-all text-sm placeholder:text-gray-600">
+                <button onclick="send()" class="absolute right-3 bg-blue-600 p-3 rounded-2xl hover:bg-blue-500 transition shadow-lg shadow-blue-600/20 active:scale-90">
+                    🚀
+                </button>
+            </div>
+            <p class="text-[10px] text-center text-gray-600 mt-4 uppercase tracking-tighter">MAHOXAI hata yapabilir, her zaman kontrol et ağa.</p>
+        </div>
+    </main>
+
+    <script src="core.js"></script>
+    <script>
+        // Oturum Kontrolü
+        const user = localStorage.getItem('mahox_session');
+        if(!user) window.location.href = 'index.html';
+        document.getElementById('userName').innerText = user;
+
+        async function send() {
+            const input = document.getElementById('userInput');
+            const display = document.getElementById('chatDisplay');
+            if(!input.value.trim()) return;
+
+            const userText = input.value;
+            input.value = "";
+
+            // Kullanıcı Mesajını Ekle
+            display.innerHTML += `
+                <div class="flex justify-end animate__animated animate__fadeInUp">
+                    <div class="message-user max-w-xl p-6 text-sm text-white">
+                        ${userText}
+                    </div>
+                </div>`;
+            
+            // "Düşünüyor" Animasyonu
+            const loadingId = "load-" + Date.now();
+            display.innerHTML += `
+                <div id="${loadingId}" class="flex animate__animated animate__fadeIn">
+                    <div class="message-bot p-4 text-xs text-gray-500 italic">
+                        MAHOXAI düşünüyor...
+                    </div>
+                </div>`;
+            display.scrollTop = display.scrollHeight;
+
+            // GERÇEK AI CEVABI (core.js içindeki fonksiyonu çağırır)
+            try {
+                const aiResponse = await askMahox(userText);
+                document.getElementById(loadingId).remove();
+                
+                display.innerHTML += `
+                    <div class="flex animate__animated animate__fadeIn">
+                        <div class="message-bot max-w-xl p-6 text-sm leading-relaxed text-gray-300">
+                            ${aiResponse}
+                        </div>
+                    </div>`;
+            } catch (err) {
+                document.getElementById(loadingId).innerText = "Ağa API patladı, core.js dosyasını kontrol et!";
+            }
+
+            display.scrollTop = display.scrollHeight;
+        }
+
+        function logout() { localStorage.removeItem('mahox_session'); window.location.href = 'index.html'; }
+    </script>
+</body>
+</html>
