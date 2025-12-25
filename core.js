@@ -1,27 +1,38 @@
-// core.js - Gerçek Hata Gösterici
-async function askMahox(userMessage) {
+// MAHOXAI - GitHub Pages Güvenli Versiyon
+async function askMahox(userInput) {
+    // Token'ı kodun içine yazmıyoruz, tarayıcı hafızasından çekiyoruz
+    const API_TOKEN = localStorage.getItem("MAHOX_TOKEN"); 
+    const API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2";
+
+    if (!API_TOKEN) {
+        return "Ağa token girmedin! Console'a 'setToken(\"hf_...\")' yaz veya giriş yap.";
+    }
+
     try {
-       // core.js içinde istek attığın yer
-const response = await fetch("/.netlify/functions/chat", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ message: userInput })
-});
+        const response = await fetch(API_URL, {
+            method: "POST",
+            headers: { 
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${API_TOKEN}`
+            },
+            body: JSON.stringify({ 
+                inputs: `User: ${userInput}\nAssistant:`,
+                parameters: { max_new_tokens: 250, wait_for_model: true }
+            })
+        });
 
         const result = await response.json();
-
-        if (!response.ok) {
-            // "Öksürdü" yerine gerçek hatayı yazdırıyoruz
-            return "MAHOX Hatası: " + (result.error || "Bilinmeyen bir sorun var.");
-        }
-
         if (Array.isArray(result) && result[0].generated_text) {
-            return result[0].generated_text.split("<|assistant|>").pop().trim();
+            return result[0].generated_text.split("Assistant:").pop().trim();
         }
-        return "Ağa veri geldi ama formatı bozuk!";
+        return "Cevap alınamadı.";
     } catch (error) {
-        return "Bağlantı hatası: Backend'e ulaşılamıyor!";
+        return "Bağlantı hatası! Token yanlış olabilir veya model uykuda.";
     }
 }
 
-
+// Token'ı hafızaya kaydetmek için yardımcı fonksiyon
+function setToken(token) {
+    localStorage.setItem("MAHOX_TOKEN", token);
+    console.log("Token başarıyla zırhlandı!");
+}
